@@ -59,53 +59,40 @@ body {
   align-items: center;
   gap: 6px;
   transform: translateX(-50%);
-  border: 1px solid rgba(159, 192, 255, 0.62);
+  border: 1px solid #d8d6cf;
   border-radius: 999px;
   padding: 4px;
-  background: rgba(255, 255, 255, 0.48);
-  --active-index: 0;
+  background: rgba(255, 255, 255, 0.62);
 }
 
 .home-nav button {
   position: relative;
   z-index: 2;
-  min-width: 78px;
+  min-width: 84px;
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: #9fc0ff;
+  color: #74746f;
   padding: 9px 18px;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
-  font-weight: 400;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.home-nav button:hover {
+  color: #151515;
+}
+
+.home-nav button.is-active {
+  background: #151515 !important;
+  color: #ffffff !important;
+  box-shadow: none;
 }
 
 .home-nav::before {
-  content: "";
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: 78px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.74);
-  box-shadow: inset 0 0 0 1px rgba(159, 192, 255, 0.5);
-  transform: translateX(calc(var(--active-index) * 84px));
-  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.home-nav:has(button:nth-child(2).is-active) {
-  --active-index: 1;
-}
-
-.home-nav:has(button:nth-child(3).is-active) {
-  --active-index: 2;
-}
-
-.home-nav .is-active {
-  background: transparent;
-  box-shadow: none;
+  display: none !important;
 }
 
 .focus-shell {
@@ -131,7 +118,7 @@ body {
 }
 
 .space-shell .archive-gallery {
-  padding-left: 220px;
+  padding-left: 260px;
   padding-top: 118px;
 }
 
@@ -141,48 +128,73 @@ body {
   left: 64px;
   z-index: 4;
   width: 170px;
+  height: calc(100vh - 72px);
   padding: 0;
   display: flex;
   flex-direction: column;
-  color: #9fb0ca;
+  color: #151515;
   font-size: 12px;
 }
 
-
-.focus-side a {
+.focus-side a, .focus-side .sidebar-brand-link {
   display: block;
   width: max-content;
   min-height: 0;
   border: 0;
   padding: 0;
-  color: #9fc0ff;
+  color: #151515;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 17px;
   font-weight: 400;
   line-height: 1.05;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+  text-decoration: none;
   background: transparent;
 }
 
-
 .focus-sound {
-  margin-top: 118px; /* 링크가 위로 올라감에 따라 겹치지 않도록 조율 */
-
-  padding: 7px 8px;
-  border: 1px solid rgba(156, 155, 150, 0.72);
+  margin-top: 48px;
+  padding: 8px 16px;
+  border: 1px solid #d8d6cf;
+  border-radius: 6px;
   display: flex;
   justify-content: space-between;
-  color: #bbb8ae;
+  align-items: center;
+  color: #151515;
   background: transparent;
-  width: 132px;
+  width: 140px;
   cursor: pointer;
-  text-align: left;
+  font-family: inherit;
+  font-size: 12px;
+  transition: all 0.2s ease;
 }
 
 .focus-sound:hover {
-  color: #9fc0ff;
+  border-color: #151515;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.sound-slider-icon {
+  display: flex;
+  align-items: center;
+  color: #639a7f;
+}
+
+.focus-side-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #74746f;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+}
+
+.footer-circle-icon {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #74746f;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 .sound-sheet {
@@ -483,27 +495,235 @@ h1 {
   min-height: 100vh;
   padding: 84px 72px 80px;
   background: rgba(251, 250, 246, 0.78);
+  box-sizing: border-box;
+}
+
+.space-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: min(1040px, 100%);
+  margin: 0 auto 36px;
+  font-family: Arial, sans-serif;
+  text-align: left;
+}
+
+.space-title-group h1 {
+  font-size: 28px;
+  font-weight: 300;
+  margin: 0 0 6px 0;
+  letter-spacing: 2px;
+  color: #111111;
+}
+
+.space-subtitle {
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  color: #6b6b67;
+  margin: 0;
+}
+
+.space-controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  color: #6b6b67;
+}
+
+.view-mode-selector {
+  display: flex;
+  gap: 12px;
+}
+
+.view-mode-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #6b6b67;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  padding: 2px 0;
+}
+
+.view-mode-btn.is-active {
+  color: #151515;
+  border-bottom: 1.5px solid #639a7f;
+  font-weight: bold;
 }
 
 .archive-grid {
   width: min(1040px, 100%);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, minmax(150px, 1fr));
-  column-gap: 58px;
-  row-gap: 54px;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  column-gap: 32px;
+  row-gap: 32px;
 }
 
-.archive-thumb {
-  min-height: 140px;
-  color: #111;
+.archive-card {
+  background: #fbfbf9;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
-.archive-thumb time {
-  display: block;
-  margin: 0 0 12px 12px;
+.archive-card.is-pressing {
+  transform: scale(0.97);
+  opacity: 0.82;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.card-empty-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #fdfdfb;
+  border: 1px dashed rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
+
+.green-accent {
+  color: #639a7f;
+  font-weight: 500;
+}
+
+.card-header-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "Courier New", monospace;
   font-size: 12px;
-  line-height: 1;
+  color: #9c9b96;
+}
+
+.card-date-tag {
+  font-weight: bold;
+  color: #111111;
+}
+
+.card-more-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9c9b96;
+  padding: 0;
+  font-size: 12px;
+}
+
+.card-preview-area {
+  width: 100%;
+  aspect-ratio: 220/120;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: #f4f3ed;
+}
+
+.card-screenshot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-footer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.card-text-group h3 {
+  font-family: "Courier New", monospace;
+  font-size: 15px;
+  font-weight: bold;
+  color: #111111;
+  margin: 0 0 4px 0;
+}
+
+.card-text-group p {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  color: #9c9b96;
+  margin: 0;
+}
+
+.card-tags-and-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.card-pill-tags {
+  display: flex;
+  gap: 6px;
+}
+
+.tag-pill {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: #6b6b67;
+  background: #f5f4ee;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.card-arrow-link {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: #fbfaf6;
+  color: #111111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  padding: 0;
+}
+
+.card-arrow-link:hover {
+  background: #111111;
+  color: #ffffff;
+  border-color: #111111;
+}
+
+.more-coming-soon-box {
+  width: min(1040px, 100%);
+  margin: 36px auto 0;
+  box-sizing: border-box;
+  border: 1px dashed rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #9c9b96;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.coming-soon-icon {
+  color: #9c9b96;
+  opacity: 0.8;
 }
 
 .archive-still-svg {
@@ -737,6 +957,8 @@ h1 {
   will-change: transform;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
   box-sizing: border-box;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .word-node.is-released {
@@ -803,20 +1025,38 @@ h1 {
   background: #141311; /* 5번 이미지 웜 블랙 전체 배경 */
 }
 
-.time-stage,
-.reward-stage {
-  width: min(900px, calc(100vw - 330px));
-  height: min(690px, calc(100vh - 132px));
+.time-stage {
+  width: min(720px, calc(100vw - 330px));
+  height: min(620px, calc(100vh - 132px));
   margin: 0 auto;
   position: relative;
-  border: 1px solid rgba(170, 170, 160, 0.34);
+  border: 1px solid rgba(170, 170, 160, 0.22);
   background: rgba(26, 25, 23, 0.65); /* 투명한 다크 글래스모피즘 */
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
   z-index: 2;
+  box-sizing: border-box;
+  padding: 42px 64px;
+  display: flex;
+  flex-direction: column;
 }
 
 .reward-stage {
-  background: rgba(26, 25, 23, 0.65);
+  position: absolute;
+  right: 48px;
+  bottom: 48px;
+  width: 320px;
+  height: auto;
+  border: 1px solid rgba(159, 192, 255, 0.32);
+  background: rgba(20, 19, 17, 0.86); /* 투명한 다크 글래스모피즘 */
+  backdrop-filter: blur(12px);
+  z-index: 10;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-radius: 8px;
+  margin: 0;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
 
 /* 3D 집중 영역이 화면 전체를 사용하도록 배치 */
@@ -879,148 +1119,185 @@ h1 {
   white-space: nowrap;
 }
 
-.orbital-clock {
-  position: relative;
-  width: min(72vh, 560px);
-  height: min(72vh, 560px);
-  display: grid;
-  place-items: center;
-  color: #151515;
-  overflow: hidden;
+.timer-header-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  color: #74746f;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  margin-bottom: 48px;
 }
 
-.orbital-clock::before {
-  content: "";
-  position: absolute;
-  inset: 106px;
-  border: 1px dotted rgba(20, 20, 20, 0.16);
+.timer-display-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  margin-bottom: 42px;
+}
+
+.circular-btn {
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.58);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.orbital-clock::after {
-  content: "";
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  background: #f0f0ed;
-  opacity: 0;
+.circular-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-.clock-core {
-  text-align: center;
-  z-index: 1;
-  display: grid;
-  gap: 3px;
-  justify-items: start;
-  color: #151515;
+.timer-numbers {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 11px;
-  line-height: 1.05;
-  transform: translateX(-2px);
+  font-size: 58px;
+  font-weight: 300;
+  color: #ffffff;
+  letter-spacing: -1px;
 }
 
-.clock-core strong {
-  display: block;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: 0;
+.task-input-row {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 52px;
 }
 
-.clock-label {
-  position: absolute;
-  color: rgba(20, 20, 20, 0.72);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-  user-select: none;
-}
-
-.label-top {
-  top: 27%;
-  left: 50%;
-  transform: translateX(-50%) rotate(90deg);
-}
-
-.label-upper-left {
-  top: 33%;
-  left: 32%;
-  transform: rotate(42deg);
-}
-
-.label-upper-right {
-  top: 33%;
-  right: 32%;
-  transform: rotate(-42deg);
-}
-
-.label-left {
-  top: 50%;
-  left: 27%;
-  transform: translateY(-50%);
-}
-
-.label-right {
-  top: 50%;
-  right: 27%;
-  transform: translateY(-50%);
-}
-
-.label-lower-left {
-  bottom: 33%;
-  left: 32%;
-  transform: rotate(-42deg);
-}
-
-.label-bottom {
-  bottom: 27%;
-  left: 50%;
-  transform: translateX(-50%) rotate(90deg);
-}
-
-.label-lower-right {
-  bottom: 33%;
-  right: 32%;
-  transform: rotate(42deg);
-}
-
-.orbital-clock .clock-step {
-  position: absolute;
-  z-index: 2;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border: 1px solid rgba(20, 20, 20, 0.28);
-  border-radius: 0;
-  color: rgba(20, 20, 20, 0.78);
+.task-focus-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-family: Arial, sans-serif;
   font-size: 14px;
-  background: transparent;
+  padding: 13px 44px 13px 18px;
+  outline: none;
+  transition: border-color 0.2s ease;
 }
 
-.orbital-clock .clock-minus {
-  left: 26%;
-  top: 50%;
-  transform: translateY(-50%);
+.task-focus-input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-.orbital-clock .clock-plus {
-  right: 26%;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.orbital-clock input {
+.task-icon {
   position: absolute;
-  left: 50%;
-  bottom: 17%;
-  width: 190px;
-  transform: translateX(-50%);
-  accent-color: #111;
-  opacity: 0.32;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.4);
+  display: flex;
+}
+
+.preset-time-section {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 36px;
+  text-align: left;
+}
+
+.preset-label {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: #74746f;
+  margin-bottom: 18px;
+}
+
+.preset-options {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.preset-option-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 0;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.preset-option-label:last-child {
+  border-bottom: none;
+}
+
+.preset-option-label:hover {
+  color: #ffffff;
+}
+
+.preset-option-label input {
+  display: none;
+}
+
+/* Custom styled radio button on the right */
+.custom-radio {
+  order: 2;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.preset-option-label input:checked ~ .custom-radio {
+  border-color: #ffffff;
+  background: #ffffff;
+}
+
+.preset-text {
+  order: 1;
+}
+
+.preset-option-label input:checked ~ .preset-text {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.bottom-arrow-row {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+
+.start-focus-btn {
+  width: 100%;
+  max-width: 280px;
+  height: 48px;
+  margin: 0 auto;
+  border: none;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.start-focus-btn:hover {
+  opacity: 0.9;
 }
 
 .growth-scene {
@@ -1075,11 +1352,66 @@ h1 {
   background: rgba(0, 0, 0, 0.04);
 }
 
-.reward-copy {
-  position: absolute;
-  right: 64px;
-  top: 44%;
-  line-height: 1.8;
+.reward-stage .reward-copy {
+  position: static;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.reward-stage .reward-copy h3 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: #9fc0ff;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+}
+
+.reward-stage .reward-copy p {
+  margin: 6px 0;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  color: #a4ffdd;
+}
+
+.reward-stage .reward-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.reward-stage .ritual-button {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #74746f;
+  background: #fbfaf6;
+  color: #4a7be6;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin: 0;
+}
+
+.reward-stage .ritual-button:hover {
+  background: #f4f3ed;
+  border-color: #555;
+}
+
+.reward-stage .capture-btn {
+  background: transparent;
+  color: #a4ffdd;
+  border-color: rgba(164, 255, 221, 0.5);
+}
+
+.reward-stage .capture-btn:hover {
+  background: rgba(164, 255, 221, 0.1);
+  border-color: #a4ffdd;
 }
 
 /* 3D 노드용 뱃지/말풍선 팝업 카드 스타일 */
@@ -1160,4 +1492,396 @@ h1 {
 .popover-close-btn:hover {
   background: rgba(46, 74, 63, 0.08);
   color: #1b2b22;
+}
+
+/* ==========================================================================
+   Space 아카이브 일기/저널 분할 에디터 뷰 스타일 (Split Screen Editor View)
+   ========================================================================== */
+
+/* 분할 뷰 활성화 시 상단 여백 보정 */
+.archive-gallery.split-view-active {
+  padding-top: 36px !important;
+}
+
+.archive-workspace-layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  width: 100%;
+  max-width: min(1480px, 100%);
+  margin: 0 auto;
+}
+
+/* 좌측 1열 세로형 카드 리스트 */
+.archive-list-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 460px;
+  flex-shrink: 0;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.vertical-list-meta {
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  color: #9c9b96;
+  text-align: left;
+  padding-bottom: 8px;
+  border-bottom: 1px dotted #d8d6cf;
+  margin-bottom: 8px;
+}
+
+/* 수평 배치 형태의 아카이브 카드 */
+.archive-card.horizontal {
+  flex-direction: row;
+  padding: 16px;
+  gap: 16px;
+  align-items: flex-start;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.archive-card.horizontal .card-body-content {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+}
+
+.archive-card.horizontal .card-preview-area {
+  width: 130px;
+  height: 72px;
+  flex-shrink: 0;
+  aspect-ratio: auto;
+}
+
+.archive-card.horizontal .card-footer-info {
+  flex: 1;
+  gap: 8px;
+}
+
+.archive-card.horizontal .card-text-group h3 {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.archive-card.horizontal .card-tags-and-action {
+  margin-top: 0;
+}
+
+/* 현재 편집 중인 카드 선택 표시 */
+.archive-card.selected-active {
+  border-color: #639a7f;
+  background: rgba(99, 154, 127, 0.03);
+  box-shadow: 0 4px 12px rgba(99, 154, 127, 0.04);
+}
+
+/* 저널 에디터 주 컨테이너 */
+.journal-editor-container {
+  display: flex;
+  flex: 1;
+  border: 1px solid #d8d6cf;
+  border-radius: 12px;
+  background: #fbfbf9;
+  overflow: hidden;
+  height: calc(100vh - 120px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.02);
+}
+
+/* 에디터 주 입력 영역 */
+.journal-editor-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 32px 36px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* 에디터 헤더 */
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  color: #74746f;
+  border-bottom: 1px dotted rgba(216, 214, 207, 0.54);
+  padding-bottom: 16px;
+}
+
+.editor-back-btn,
+.editor-more-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #74746f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.editor-back-btn:hover,
+.editor-more-btn:hover {
+  color: #151515;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.editor-meta-info {
+  display: flex;
+  align-items: center;
+}
+
+.editor-date-short {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  color: #151515;
+  margin-right: 14px;
+  font-size: 15px;
+}
+
+.editor-date-full {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: #9c9b96;
+}
+
+/* 에디터 본문 요소 */
+.editor-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-align: left;
+}
+
+.editor-tags-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.editor-core-badge {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  color: #ffffff;
+  background: #639a7f;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.editor-meta-project {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: #639a7f;
+  font-weight: bold;
+  border: 1px solid rgba(99, 154, 127, 0.3);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.editor-meta-date-stamp {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: #9c9b96;
+  margin-left: 6px;
+}
+
+.editor-title-input {
+  border: none;
+  background: transparent;
+  font-family: "Courier New", monospace;
+  font-size: 20px;
+  font-weight: bold;
+  color: #151515;
+  outline: none;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 0;
+}
+
+.editor-title-input::placeholder {
+  color: #bbb9b2;
+}
+
+.editor-divider {
+  border: 0;
+  border-top: 1px solid #eceae3;
+  margin: 16px 0 24px;
+}
+
+.editor-content-textarea {
+  border: none;
+  background: transparent;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  color: #151515;
+  outline: none;
+  width: 100%;
+  flex: 1;
+  resize: none;
+  line-height: 1.68;
+  min-height: 240px;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.editor-content-textarea::placeholder {
+  color: #bbb9b2;
+}
+
+/* 에디터 하단 영역 */
+.editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #eceae3;
+  padding-top: 20px;
+  margin-top: 24px;
+}
+
+.editor-tags-editor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.editor-pill-tag {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: #6b6b67;
+  background: #f5f4ee;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.remove-tag-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #9c9b96;
+  padding: 0;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.remove-tag-btn:hover {
+  color: #c95d5d;
+}
+
+.add-tag-trigger {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #639a7f;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 4px 8px;
+}
+
+.add-tag-trigger:hover {
+  text-decoration: underline;
+}
+
+.editor-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.save-status {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+}
+
+.save-status.is-saved {
+  color: #639a7f;
+}
+
+.save-status.is-modified {
+  color: #bbb8ae;
+}
+
+.save-entry-btn {
+  border: none;
+  background: #151515;
+  color: #ffffff;
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-entry-btn:hover {
+  background: #2a2a2a;
+}
+
+/* 에디터 우측 전용 툴바 */
+.journal-sidebar-toolbar {
+  width: 68px;
+  border-left: 1px solid #eceae3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 0;
+  gap: 24px;
+  background: #fafaf7;
+  box-sizing: border-box;
+}
+
+.toolbar-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #74746f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease;
+  padding: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.toolbar-btn:hover {
+  color: #151515;
+}
+
+.toolbar-btn-delete {
+  margin-top: auto;
+}
+
+.toolbar-btn-delete:hover {
+  color: #c95d5d;
+}
+
+.toolbar-icon-letter {
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 1.1;
+  font-family: "Courier New", monospace;
+}
+
+.toolbar-label {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  text-transform: lowercase;
+  color: #9c9b96;
 }

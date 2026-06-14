@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Matter from 'matter-js';
-import FocusWorld from './FocusWorld';
+import FocusWorld, { FocusWorldRef } from './FocusWorld';
 
 type FocusStage = 'remove' | 'time' | 'focus' | 'reward';
 type WordNode = {
@@ -20,9 +20,24 @@ type RewardRecord = {
   words: string[];
   music: string;
   createdAt: string;
+  screenshot?: string; // 3D 캡처 이미지 데이터 (DataURL) 추가
 };
 
 const musicOptions = ['ambient', 'rain', 'noise', 'silence'];
+
+// 한글 및 다국어 폰트의 물리 크기와 자폭을 감안한 너비 계산 헬퍼 함수
+function getEstimatedWordWidth(text: string): number {
+  let estimatedLength = 0;
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code > 127) {
+      estimatedLength += 13.5; // 한글/유니코드 등 넓은 문자
+    } else {
+      estimatedLength += 7.2;  // 영문/숫자/특수문자
+    }
+  }
+  return Math.max(72, Math.ceil(estimatedLength + 28));
+}
 
 // 정적 프랙탈 나무의 노드 위치들을 얻기 위한 함수 (중앙 고정용)
 type NodePosition = { x: number; y: number; angle: number };
@@ -65,7 +80,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
   const [input, setInput] = useState('');
   const [words, setWords] = useState<string[]>([]);
   const [nodes, setNodes] = useState<WordNode[]>([]);
-  const [minutes, setMinutes] = useState(12);
+  const [minutes, setMinutes] = useState(25);
   const [music, setMusic] = useState('ambient');
   const [progress, setProgress] = useState(0);
   const [reward, setReward] = useState<RewardRecord | null>(null);
@@ -76,6 +91,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
   const runnerRef = useRef<Matter.Runner | null>(null);
   const bodiesRef = useRef<Map<string, Matter.Body>>(new Map());
   const labelMapRef = useRef<Map<string, string>>(new Map());
+  const focusWorldRef = useRef<FocusWorldRef | null>(null);
 
   const stageLabel = useMemo(() => {
     if (stage === 'remove') return 'remove distractions';
@@ -151,7 +167,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
   useEffect(() => {
     if (stage !== 'focus') return;
     setProgress(0);
-    const totalTicks = Math.max(6, minutes * 60);
+    const totalTicks = 20; // 개발 검증을 위해 20초로 단축 설정
     const interval = window.setInterval(() => {
       setProgress((value) => {
         const next = Math.min(1, value + 1 / totalTicks);
@@ -217,7 +233,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
         angle: chosenPos.angle,
       };
 
-      const wordWidth = Math.max(72, value.length * 10 + 26);
+      const wordWidth = getEstimatedWordWidth(value);
       const body = Matter.Bodies.rectangle(
         targetPos.x,
         targetPos.y - 12, // 가지 위에 얹혀지도록 살짝 조정
@@ -228,7 +244,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
           restitution: 0.15,
         },
       );
-      // 생성 후에 정적으로 만들어 줌으로써, 나중에 setStatic(body, false) 호출 시 질량(mass)과 관성(inertia) 정보가 NaN이 되지 않고 정상 복구되도록 합니다.
+      // 생성 후에 정적으로 만들어 줌함으로써, 나중에 setStatic(body, false) 호출 시 질량(mass)과 관성(inertia) 정보가 NaN이 되지 않고 정상 복구되도록 합니다.
       Matter.Body.setStatic(body, true);
  
       bodiesRef.current.set(id, body);
@@ -266,8 +282,20 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
 
   const saveReward = () => {
     if (!reward) return;
+    
+    // 현재 포커스 화면의 3D 숲 스크린샷 캡처
+    let finalScreenshot = '';
+    if (focusWorldRef.current) {
+      finalScreenshot = focusWorldRef.current.capture() || '';
+    }
+
+    const recordWithScreenshot: RewardRecord = {
+      ...reward,
+      screenshot: finalScreenshot,
+    };
+
     const saved = JSON.parse(localStorage.getItem('focus-space-rewards') || '[]') as RewardRecord[];
-    localStorage.setItem('focus-space-rewards', JSON.stringify([reward, ...saved].slice(0, 24)));
+    localStorage.setItem('focus-space-rewards', JSON.stringify([recordWithScreenshot, ...saved].slice(0, 24)));
     onSendToSpace();
   };
 
@@ -337,7 +365,11 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
     <div className={`focus-flow focus-${stage}`}>
       {/* 3D FocusWorld를 최상단 렌더 배경 레이어로 배치하여 끊김 현상 해결 */}
       <div className="focus-world-background-container">
-        <FocusWorld progress={stage === 'focus' ? progress : stage === 'reward' ? 1 : 0} words={words} />
+        <FocusWorld 
+          ref={focusWorldRef}
+          progress={stage === 'focus' ? progress : stage === 'reward' ? 1 : 0} 
+          words={words} 
+        />
       </div>
 
       <div className="focus-meta">
@@ -373,7 +405,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
                   key={node.id}
                   style={{
                     transform: `translate(calc(${node.x}px - 50%), calc(${node.y}px - 50%)) rotate(${node.angle}rad)`,
-                    width: Math.max(72, node.label.length * 10 + 26),
+                    width: getEstimatedWordWidth(node.label),
                   }}
                 >
                   {node.label}
@@ -403,33 +435,59 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
 
       {stage === 'time' && (
         <div className="time-stage">
-          <div className="orbital-clock">
-            <div className="clock-label label-top">Col. 001</div>
-            <div className="clock-label label-upper-left">Col. 001</div>
-            <div className="clock-label label-upper-right">Col. 001</div>
-            <div className="clock-label label-left">Col. 001</div>
-            <div className="clock-label label-right">Col. 001</div>
-            <div className="clock-label label-lower-left">Col. 001</div>
-            <div className="clock-label label-bottom">Col. 001</div>
-            <div className="clock-label label-lower-right">Col. 001</div>
-            <div className="clock-core">
-              <span>U+2460</span>
-              <strong>{minutes.toString().padStart(2, '0')}</strong>
-              <span>Circled Digit One</span>
-              <span>1.1.005</span>
-              <span>CC. NMBRS.</span>
-            </div>
-            <button className="clock-step clock-minus" type="button" onClick={() => setMinutes((value) => Math.max(1, value - 1))}>-</button>
-            <button className="clock-step clock-plus" type="button" onClick={() => setMinutes((value) => Math.min(30, value + 1))}>+</button>
-            <input
-              type="range"
-              min="1"
-              max="30"
-              value={minutes}
-              onChange={(event) => setMinutes(Number(event.target.value))}
-            />
+          <div className="timer-header-row">
+            <span>set time</span>
+            <span>[ ritual ]</span>
           </div>
-          <button className="ritual-button" type="button" onClick={() => setStage('focus')}>
+
+          <div className="timer-display-row">
+            <button className="circular-btn pause-btn" type="button">
+              {/* Pause Icon */}
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+                <rect x="6" y="4" width="3" height="16" rx="0.5" />
+                <rect x="15" y="4" width="3" height="16" rx="0.5" />
+              </svg>
+            </button>
+            <div className="timer-numbers">{minutes.toString().padStart(2, '0')}:00</div>
+            <button className="circular-btn reset-btn" type="button" onClick={() => setMinutes(25)}>
+              {/* Reset/Rotate Icon */}
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="task-input-row">
+            <input type="text" placeholder="select task to focus on" className="task-focus-input" />
+            <span className="task-icon">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </span>
+          </div>
+
+          <div className="preset-time-section">
+            <div className="preset-label">preset time</div>
+            <div className="preset-options">
+              {[15, 25, 45, 60].map((t) => (
+                <label key={t} className="preset-option-label">
+                  <input
+                    type="radio"
+                    name="preset-time"
+                    checked={minutes === t}
+                    onChange={() => setMinutes(t)}
+                  />
+                  <span className="custom-radio"></span>
+                  <span className="preset-text">{t} min</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="bottom-arrow-row">↓</div>
+
+          <button className="start-focus-btn" type="button" onClick={() => setStage('focus')}>
             start focus
           </button>
         </div>
@@ -455,12 +513,28 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
       {stage === 'reward' && reward && (
         <div className="reward-stage">
           <div className="reward-copy">
+            <h3>focus session complete</h3>
             <p>+ {reward.seed} seed</p>
             <p>+ {reward.energy} focus energy</p>
           </div>
-          <button className="ritual-button" type="button" onClick={saveReward}>
-            send to space
-          </button>
+          <div className="reward-actions">
+            <button className="ritual-button capture-btn" type="button" onClick={() => {
+              if (focusWorldRef.current) {
+                const dataUrl = focusWorldRef.current.capture();
+                if (dataUrl) {
+                  const link = document.createElement('a');
+                  link.download = `iyo-focus-forest-${Date.now()}.png`;
+                  link.href = dataUrl;
+                  link.click();
+                }
+              }
+            }}>
+              save screenshot
+            </button>
+            <button className="ritual-button" type="button" onClick={saveReward}>
+              send to space
+            </button>
+          </div>
         </div>
       )}
     </div>

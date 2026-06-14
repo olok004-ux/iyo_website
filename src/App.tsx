@@ -71,13 +71,23 @@ function App() {
       <main className="focus-shell">
         {nav}
         <aside className="focus-side">
-          <a href="#" aria-label="Focus archive">
+          <a href="#" className="sidebar-brand-link" aria-label="Focus archive">
             focus.archive/<br />
             ritual list
           </a>
           <button type="button" className="focus-sound" onClick={() => setSoundOpen(true)}>
-            sound
+            <span>sound</span>
+            <span className="sound-slider-icon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+              </svg>
+            </span>
           </button>
+          <div className="focus-side-footer">
+            <span className="copyright-text">© 2026</span>
+            <span className="footer-circle-icon"></span>
+          </div>
         </aside>
         <FocusFlow cameraOn={cameraOn} onSendToSpace={() => setView('space')} />
         {soundSheet}
@@ -89,13 +99,23 @@ function App() {
     <main className="space-shell">
       {nav}
       <aside className="focus-side">
-        <a href="#" aria-label="Focus archive">
+        <a href="#" className="sidebar-brand-link" aria-label="Focus archive">
           focus.archive/<br />
           ritual list
         </a>
         <button type="button" className="focus-sound" onClick={() => setSoundOpen(true)}>
-          sound
+          <span>sound</span>
+          <span className="sound-slider-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="4" y1="12" x2="20" y2="12" />
+              <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+            </svg>
+          </span>
         </button>
+        <div className="focus-side-footer">
+          <span className="copyright-text">© 2026</span>
+          <span className="footer-circle-icon"></span>
+        </div>
       </aside>
 
       <SpaceArchive />
