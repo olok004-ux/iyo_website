@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import Matter from 'matter-js';
 import FocusWorld, { FocusWorldRef } from './FocusWorld';
 
@@ -81,6 +81,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
   const [words, setWords] = useState<string[]>([]);
   const [nodes, setNodes] = useState<WordNode[]>([]);
   const [minutes, setMinutes] = useState(25);
+  const [focusTask, setFocusTask] = useState('');
   const [music, setMusic] = useState('ambient');
   const [progress, setProgress] = useState(0);
   const [reward, setReward] = useState<RewardRecord | null>(null);
@@ -92,13 +93,6 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
   const bodiesRef = useRef<Map<string, Matter.Body>>(new Map());
   const labelMapRef = useRef<Map<string, string>>(new Map());
   const focusWorldRef = useRef<FocusWorldRef | null>(null);
-
-  const stageLabel = useMemo(() => {
-    if (stage === 'remove') return 'remove distractions';
-    if (stage === 'time') return 'set time';
-    if (stage === 'focus') return 'growth running';
-    return 'reward formed';
-  }, [stage]);
 
   // Matter.js 엔진 초기화 (remove 스테이지)
   useEffect(() => {
@@ -321,7 +315,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
       ctx.clearRect(0, 0, w, h);
 
       // 연한 짙은 녹색 선으로 뒷단에 프랙탈 나무 데코레이션 렌더링
-      ctx.strokeStyle = 'rgba(20, 42, 31, 0.52)';
+      ctx.strokeStyle = 'rgba(176, 245, 211, 0.7)';
       ctx.lineWidth = 1.0;
       ctx.lineCap = 'butt';
 
@@ -370,11 +364,6 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
           progress={stage === 'focus' ? progress : stage === 'reward' ? 1 : 0} 
           words={words} 
         />
-      </div>
-
-      <div className="focus-meta">
-        <span>{stageLabel}</span>
-        <span>{stage === 'focus' ? `${Math.round(progress * 100)}%` : '[ ritual ]'}</span>
       </div>
 
       {stage === 'remove' && (
@@ -427,9 +416,6 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
             <div className="release-desc-text">let go of distractions and breathe</div>
           </div>
 
-          <div className="always-add-more-hint">
-            ⓘ you can always add more
-          </div>
         </div>
       )}
 
@@ -437,7 +423,6 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
         <div className="time-stage">
           <div className="timer-header-row">
             <span>set time</span>
-            <span>[ ritual ]</span>
           </div>
 
           <div className="timer-display-row">
@@ -458,7 +443,13 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
           </div>
 
           <div className="task-input-row">
-            <input type="text" placeholder="select task to focus on" className="task-focus-input" />
+            <input
+              type="text"
+              placeholder="select task to focus on"
+              className="task-focus-input"
+              value={focusTask}
+              onChange={(event) => setFocusTask(event.target.value)}
+            />
             <span className="task-icon">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
@@ -495,6 +486,11 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
 
       {stage === 'focus' && (
         <div className="focus-stage">
+          {focusTask.trim() && (
+            <div className="floating-focus-task">
+              {focusTask.trim()}
+            </div>
+          )}
           <div className="music-row">
             {musicOptions.map((option) => (
               <button
@@ -511,31 +507,38 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
       )}
 
       {stage === 'reward' && reward && (
-        <div className="reward-stage">
-          <div className="reward-copy">
-            <h3>focus session complete</h3>
-            <p>+ {reward.seed} seed</p>
-            <p>+ {reward.energy} focus energy</p>
-          </div>
-          <div className="reward-actions">
-            <button className="ritual-button capture-btn" type="button" onClick={() => {
-              if (focusWorldRef.current) {
-                const dataUrl = focusWorldRef.current.capture();
-                if (dataUrl) {
-                  const link = document.createElement('a');
-                  link.download = `iyo-focus-forest-${Date.now()}.png`;
-                  link.href = dataUrl;
-                  link.click();
+        <>
+          {focusTask.trim() && (
+            <div className="floating-focus-task">
+              {focusTask.trim()}
+            </div>
+          )}
+          <div className="reward-stage">
+            <div className="reward-copy">
+              <h3>focus session complete</h3>
+              <p>+ {reward.seed} seed</p>
+              <p>+ {reward.energy} focus energy</p>
+            </div>
+            <div className="reward-actions">
+              <button className="ritual-button capture-btn" type="button" onClick={() => {
+                if (focusWorldRef.current) {
+                  const dataUrl = focusWorldRef.current.capture();
+                  if (dataUrl) {
+                    const link = document.createElement('a');
+                    link.download = `iyo-focus-forest-${Date.now()}.png`;
+                    link.href = dataUrl;
+                    link.click();
+                  }
                 }
-              }
-            }}>
-              save screenshot
-            </button>
-            <button className="ritual-button" type="button" onClick={saveReward}>
-              send to space
-            </button>
+              }}>
+                save screenshot
+              </button>
+              <button className="ritual-button" type="button" onClick={saveReward}>
+                send to space
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

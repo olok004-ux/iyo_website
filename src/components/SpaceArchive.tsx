@@ -171,7 +171,7 @@ ${editContent || 'No content written.'}
     setIsSaved(false);
   };
 
-  const isSplitView = selectedId !== null;
+  const isSplitView = false;
   const currentSelectedItem = items.find(item => item.id === selectedId);
 
   return (
@@ -184,28 +184,6 @@ ${editContent || 'No content written.'}
             <p className="space-subtitle">
               archived <span className="green-accent">field recordings</span> and <span className="green-accent">visual traces</span>.
             </p>
-          </div>
-          <div className="space-controls">
-            <span className="items-count">{items.length} items</span>
-            <div className="view-mode-selector">
-              <button className="view-mode-btn is-active" type="button">
-                <span>grid</span>
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <rect x="3" y="3" width="7" height="7" />
-                  <rect x="14" y="3" width="7" height="7" />
-                  <rect x="3" y="14" width="7" height="7" />
-                  <rect x="14" y="14" width="7" height="7" />
-                </svg>
-              </button>
-              <button className="view-mode-btn" type="button">
-                <span>flow</span>
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="4" y1="6" x2="20" y2="6" />
-                  <line x1="4" y1="12" x2="20" y2="12" />
-                  <line x1="4" y1="18" x2="20" y2="18" />
-                </svg>
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -224,7 +202,7 @@ ${editContent || 'No content written.'}
             const isScreenshot = !!item.screenshot;
             const displayTitle = isScreenshot ? `field trace ${dateStr}` : `signal pattern ${dateStr}`;
             const displayType = isScreenshot ? 'visual trace' : 'data pattern';
-            const tags = isScreenshot ? ['visual', 'trace', dateStr] : ['data', 'pattern', dateStr];
+            const tags = isScreenshot ? ['visual', 'trace'] : ['data', 'pattern'];
 
             return (
               <article
@@ -247,16 +225,6 @@ ${editContent || 'No content written.'}
                 <div className="card-header-meta">
                   <span className="card-date-tag">{dateStr}</span>
                   <span className="card-date-full">{formatFullDate(item.createdAt)}</span>
-                  <button
-                    className="card-more-btn"
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(item.id);
-                    }}
-                  >
-                    •••
-                  </button>
                 </div>
 
                 <div className="card-body-content">
@@ -281,20 +249,6 @@ ${editContent || 'No content written.'}
                           <span className="tag-pill" key={tag}>{tag}</span>
                         ))}
                       </div>
-                      <button
-                        className="card-arrow-link"
-                        type="button"
-                        aria-label="Go to details"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectCard(item);
-                        }}
-                      >
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                          <polyline points="12 5 19 12 12 19" />
-                        </svg>
-                      </button>
                     </div>
                   </div>
                 </div>

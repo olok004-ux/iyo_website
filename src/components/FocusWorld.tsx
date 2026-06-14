@@ -421,8 +421,8 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
       const startPos = new THREE.Vector3(0, 0, 0);
       
       // 극적인 대비를 위해 0.35배 ~ 2.3배 사이의 다양한 스케일 팩터 부여
-      const scale = 0.35 + Math.random() * 1.95;
-      const trunkLength = (1.3 + Math.random() * 0.9) * scale;
+      const scale = 0.26 + Math.random() * 1.02;
+      const trunkLength = (1.0 + Math.random() * 0.58) * scale;
  
       // 셔플링 풀에서 차례대로 타입 배정
       const treeType = typePool[i] !== undefined ? typePool[i] : Math.floor(Math.random() * 8);
@@ -481,7 +481,7 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
       const z = Math.sin(angle) * radius;
  
       // 굵기(선 두께) 지정을 (1.0 ~ 3.5) * scale 범위로 다양하게 생성
-      const linewidthMultiplier = 1.0 + Math.random() * 2.5;
+      const linewidthMultiplier = 0.65 + Math.random() * 1.35;
       const lineMaterial = new THREE.LineBasicMaterial({
         vertexColors: true,
         linewidth: linewidthMultiplier * scale,
