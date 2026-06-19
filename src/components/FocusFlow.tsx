@@ -21,6 +21,7 @@ type RewardRecord = {
   music: string;
   createdAt: string;
   screenshot?: string; // 3D 캡처 이미지 데이터 (DataURL) 추가
+  journalTitle?: string; // 저널 제목 (목표) 추가
 };
 
 const musicOptions = ['ambient', 'rain', 'noise', 'silence'];
@@ -175,6 +176,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
             words,
             music,
             createdAt: new Date().toISOString(),
+            journalTitle: focusTask.trim() || undefined,
           };
           setReward(record);
           setStage('reward');
@@ -183,7 +185,7 @@ function FocusFlow({ cameraOn, onSendToSpace }: { cameraOn: boolean; onSendToSpa
       });
     }, 1000);
     return () => window.clearInterval(interval);
-  }, [minutes, music, stage, words]);
+  }, [minutes, music, stage, words, focusTask]);
 
   // 방해어 열매 맺기 (정적 나무 노드에 매달기)
   const addWord = (event: FormEvent) => {

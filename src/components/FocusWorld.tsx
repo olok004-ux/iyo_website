@@ -233,7 +233,7 @@ function createWordBadgeSprite(text: string, isGreenish: boolean) {
     ctx.font = 'bold 13px Courier New, monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    
+
     const displayWord = text.length > 18 ? text.slice(0, 16) + '..' : text;
     ctx.fillText(displayWord, 128, 32);
   }
@@ -297,7 +297,7 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    
+
     // 깊은 웜 다크 공간을 위한 안개(Fog) 설정
     scene.fog = new THREE.FogExp2('#141311', 0.05);
 
@@ -329,7 +329,7 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
     gridHelper.position.y = 0;
     worldGroup.add(gridHelper);
 
-    // 푸른색/초록색 형광 & 모노톤 팔레트
+    // 오리지널 푸른색/초록색 형광 & 파스텔 컬러 팔레트 복원
     const colorPalette = [
       new THREE.Color('#7ef5c0'), // 밝은 형광 민트 그린
       new THREE.Color('#4ef29f'), // 비브란트 그린
@@ -340,62 +340,138 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
     ];
 
     // 1. 바닥에 데이터/풀 조각들 뿌려놓기 (블러 광원 및 실시간 반짝임 구현)
-    const scatterCount = 180;
-    const scatterGeometry = new THREE.BufferGeometry();
-    const scatterPositions = new Float32Array(scatterCount * 3);
-    const scatterColors = new Float32Array(scatterCount * 3);
-    const scatterBaseColors: THREE.Color[] = [];
-    const scatterPhases: number[] = [];
-    
-    for (let i = 0; i < scatterCount; i++) {
+    // 파티클을 두 부류로 분할: 130개는 꽉 찬 네모, 50개는 사각 프랙탈 구조
+    const squareCount = 130;
+    const fractalCount = 50;
+
+    const squareGeometry = new THREE.BufferGeometry();
+    const squarePositions = new Float32Array(squareCount * 3);
+    const squareColors = new Float32Array(squareCount * 3);
+    const squareBaseColors: THREE.Color[] = [];
+    const squarePhases: number[] = [];
+
+    for (let i = 0; i < squareCount; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = 0.8 + Math.random() * 8.5;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
-      
-      scatterPositions[i * 3] = x;
-      scatterPositions[i * 3 + 1] = 0.01;
-      scatterPositions[i * 3 + 2] = z;
+      const y = 0.01; // 바닥에 편평하게 정적 배치
+
+      squarePositions[i * 3] = x;
+      squarePositions[i * 3 + 1] = y;
+      squarePositions[i * 3 + 2] = z;
       
       const col = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-      scatterBaseColors.push(col);
-      scatterPhases.push(Math.random() * Math.PI * 2);
+      squareBaseColors.push(col);
+      squarePhases.push(Math.random() * Math.PI * 2);
 
-      scatterColors[i * 3] = col.r;
-      scatterColors[i * 3 + 1] = col.g;
-      scatterColors[i * 3 + 2] = col.b;
+      squareColors[i * 3] = col.r;
+      squareColors[i * 3 + 1] = col.g;
+      squareColors[i * 3 + 2] = col.b;
     }
-    scatterGeometry.setAttribute('position', new THREE.BufferAttribute(scatterPositions, 3));
-    scatterGeometry.setAttribute('color', new THREE.BufferAttribute(scatterColors, 3));
-    
-    // 블러 글로우 파티클용 캔버스 텍스처 제작
-    const glowCanvas = document.createElement('canvas');
-    glowCanvas.width = 16;
-    glowCanvas.height = 16;
-    const gCtx = glowCanvas.getContext('2d');
-    if (gCtx) {
-      const grad = gCtx.createRadialGradient(8, 8, 0, 8, 8, 8);
+    squareGeometry.setAttribute('position', new THREE.BufferAttribute(squarePositions, 3));
+    squareGeometry.setAttribute('color', new THREE.BufferAttribute(squareColors, 3));
+
+    const fractalGeometry = new THREE.BufferGeometry();
+    const fractalPositions = new Float32Array(fractalCount * 3);
+    const fractalColors = new Float32Array(fractalCount * 3);
+    const fractalBaseColors: THREE.Color[] = [];
+    const fractalPhases: number[] = [];
+
+    for (let i = 0; i < fractalCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 0.8 + Math.random() * 8.5;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+      const y = 0.01;
+
+      fractalPositions[i * 3] = x;
+      fractalPositions[i * 3 + 1] = y;
+      fractalPositions[i * 3 + 2] = z;
+      
+      const col = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+      fractalBaseColors.push(col);
+      fractalPhases.push(Math.random() * Math.PI * 2);
+
+      fractalColors[i * 3] = col.r;
+      fractalColors[i * 3 + 1] = col.g;
+      fractalColors[i * 3 + 2] = col.b;
+    }
+    fractalGeometry.setAttribute('position', new THREE.BufferAttribute(fractalPositions, 3));
+    fractalGeometry.setAttribute('color', new THREE.BufferAttribute(fractalColors, 3));
+
+    // 텍스처 1: 원래의 라디얼 그라디언트 입자 (다만 외곽 블러를 줄여 선명하게)
+    const squareCanvas = document.createElement('canvas');
+    squareCanvas.width = 16;
+    squareCanvas.height = 16;
+    const sqCtx = squareCanvas.getContext('2d');
+    if (sqCtx) {
+      sqCtx.clearRect(0, 0, 16, 16);
+      const grad = sqCtx.createRadialGradient(8, 8, 0, 8, 8, 8);
       grad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-      grad.addColorStop(0.3, 'rgba(255, 255, 255, 0.7)');
+      grad.addColorStop(0.55, 'rgba(255, 255, 255, 0.85)'); // 밝은 구간을 확대하여 블러 감소
+      grad.addColorStop(0.75, 'rgba(255, 255, 255, 0.2)');
       grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      gCtx.fillStyle = grad;
-      gCtx.beginPath();
-      gCtx.arc(8, 8, 8, 0, Math.PI * 2);
-      gCtx.fill();
+      sqCtx.fillStyle = grad;
+      sqCtx.beginPath();
+      sqCtx.arc(8, 8, 8, 0, Math.PI * 2);
+      sqCtx.fill();
     }
-    const glowTexture = new THREE.CanvasTexture(glowCanvas);
+    const squareTexture = new THREE.CanvasTexture(squareCanvas);
+    // 원래의 부드러운 외곽선을 위해 NearestFilter 제거
 
-    const scatterMaterial = new THREE.PointsMaterial({
-      size: 0.36, // 블러 텍스처 반영을 위해 크기 상향
-      map: glowTexture,
+    // 텍스처 2: 코흐 눈송이(Koch Snowflake) 프랙탈 모양의 픽셀 입자 제작
+    const fractalCanvas = document.createElement('canvas');
+    fractalCanvas.width = 16;
+    fractalCanvas.height = 16;
+    const frCtx = fractalCanvas.getContext('2d');
+    if (frCtx) {
+      frCtx.clearRect(0, 0, 16, 16);
+      frCtx.fillStyle = '#ffffff';
+      
+      // 코흐 눈송이(6각 프랙탈 별) 형태의 픽셀 배치
+      frCtx.fillRect(7, 1, 2, 14); // 세로 센터 축
+      frCtx.fillRect(4, 5, 8, 2);  // 가로 라인 1
+      frCtx.fillRect(4, 9, 8, 2);  // 가로 라인 2
+      
+      // 6개 꼭짓점 돌출부
+      frCtx.fillRect(7, 1, 2, 2);   // 상단 꼭지
+      frCtx.fillRect(7, 13, 2, 2);  // 하단 꼭지
+      frCtx.fillRect(2, 4, 2, 2);   // 좌상단 꼭지
+      frCtx.fillRect(12, 4, 2, 2);  // 우상단 꼭지
+      frCtx.fillRect(2, 10, 2, 2);  // 좌하단 꼭지
+      frCtx.fillRect(12, 10, 2, 2); // 우하단 꼭지
+      
+      // 중앙 코어 보강
+      frCtx.fillRect(6, 6, 4, 4);
+    }
+    const fractalTexture = new THREE.CanvasTexture(fractalCanvas);
+    fractalTexture.magFilter = THREE.NearestFilter;
+    fractalTexture.minFilter = THREE.NearestFilter;
+
+    const squareMaterial = new THREE.PointsMaterial({
+      size: 0.22, // 본래 작고 아기자기한 크기로 축소
+      map: squareTexture,
       vertexColors: true,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.88,
       depthWrite: false,
-      blending: THREE.AdditiveBlending, // 광원 겹침 효과 극대화
+      blending: THREE.AdditiveBlending,
     });
-    const scatterPoints = new THREE.Points(scatterGeometry, scatterMaterial);
-    worldGroup.add(scatterPoints);
+    const squarePoints = new THREE.Points(squareGeometry, squareMaterial);
+    worldGroup.add(squarePoints);
+
+    const fractalMaterial = new THREE.PointsMaterial({
+      size: 0.32, // 프랙탈 구조가 보이도록 살짝 크게 설정
+      map: fractalTexture,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.88,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const fractalPoints = new THREE.Points(fractalGeometry, fractalMaterial);
+    worldGroup.add(fractalPoints);
 
     // 2. 홈화면(DigitalTree)과 유사한 평면 재귀 트리 생성 및 배치 (L-System 다양성 적용)
     // 8종의 나무 타입(0~7)이 각각 최대 2개까지만 나오도록 풀을 생성하고 셔플
@@ -406,7 +482,7 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
     }
     // 풀 중 무작위로 12 ~ 14개를 선택하여 나무 개수 결정 (더욱 풍성한 숲 연출)
     const treeCount = 12 + Math.floor(Math.random() * 3); // 12~14그루
- 
+
     const treesData: {
       branches: Branch[];
       line: THREE.LineSegments;
@@ -415,22 +491,22 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
       posZ: number;
       maxLevel: number;
     }[] = [];
- 
+
     for (let i = 0; i < treeCount; i++) {
       const branches: Branch[] = [];
       const startPos = new THREE.Vector3(0, 0, 0);
-      
+
       // 극적인 대비를 위해 0.35배 ~ 2.3배 사이의 다양한 스케일 팩터 부여
       const scale = 0.26 + Math.random() * 1.02;
       const trunkLength = (1.0 + Math.random() * 0.58) * scale;
- 
+
       // 셔플링 풀에서 차례대로 타입 배정
       const treeType = typePool[i] !== undefined ? typePool[i] : Math.floor(Math.random() * 8);
-      
+
       // 타입별 과도한 기하학 팽창을 막기 위해 maxLevel 및 각도(theta) 지정
       let treeMaxLevel = 8;
       let thetaAngle = 22.5;
- 
+
       if (treeType === 0) {
         treeMaxLevel = 8;
         thetaAngle = 25.7;
@@ -456,57 +532,57 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
         treeMaxLevel = 7;
         thetaAngle = 30.0;
       }
- 
+
       const theta = ((thetaAngle + (Math.random() - 0.5) * 4) * Math.PI) / 180;
       const phaseOffset = Math.random() * Math.PI * 2;
- 
+
       // 재귀 기하학 트리 생성
       generateRecursiveTreeByType(
         treeType,
-        startPos, 
-        0, 
-        trunkLength, 
-        0, 
-        treeMaxLevel, 
-        branches, 
-        theta, 
+        startPos,
+        0,
+        trunkLength,
+        0,
+        treeMaxLevel,
+        branches,
+        theta,
         phaseOffset,
         -1
       );
- 
+
       const angle = (i / treeCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
       // 배치 반경을 기존보다 확장 (1.5 ~ 9.5)하여 넓고 다채로운 원근감 형성
       const radius = 1.5 + Math.random() * 8.0;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
- 
+
       // 굵기(선 두께) 지정을 (1.0 ~ 3.5) * scale 범위로 다양하게 생성
       const linewidthMultiplier = 0.65 + Math.random() * 1.35;
       const lineMaterial = new THREE.LineBasicMaterial({
         vertexColors: true,
         linewidth: linewidthMultiplier * scale,
       });
- 
+
       // 동적 branches 수에 맞게 정적 버퍼 크기 정밀 계산
       const maxVertices = branches.length * 2;
       const geometry = new THREE.BufferGeometry();
       const positions = new Float32Array(maxVertices * 3);
       const colors = new Float32Array(maxVertices * 3);
-      
+
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
       geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
       geometry.setDrawRange(0, 0); // 초기에는 0개 드로우
- 
+
       const lineMesh = new THREE.LineSegments(geometry, lineMaterial);
       lineMesh.position.set(x, 0, z);
       worldGroup.add(lineMesh);
- 
+
       // HSL 색채 생성 (H: 120도 그린 ~ 230도 블루, S: 65% ~ 100%, L: 45% ~ 70%)
       const h = 120 + Math.random() * 110;
       const s = 0.65 + Math.random() * 0.35;
       const l = 0.45 + Math.random() * 0.25;
       const randColor = new THREE.Color().setHSL(h / 360, s, l);
- 
+
       treesData.push({
         branches,
         line: lineMesh,
@@ -527,12 +603,12 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
       pPositions[i * 3 + 2] = (Math.random() - 0.5) * 28;
     }
     particleGeometry.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
-    
+
     // 4. 공중 단어 스프라이트 배치용 그룹 준비
     const wordGroup = new THREE.Group();
     worldGroup.add(wordGroup);
     wordGroupRef.current = wordGroup;
-    
+
     const bubbleCanvas = document.createElement('canvas');
     bubbleCanvas.width = 16;
     bubbleCanvas.height = 16;
@@ -633,18 +709,32 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
         tree.line.rotation.y = Math.atan2(diffX, diffZ);
       });
 
-      // 1.5. 바닥 픽셀 Twinkling 반짝임 애니메이션
-      const scatterColorArray = scatterGeometry.attributes.color.array as Float32Array;
-      for (let i = 0; i < scatterCount; i++) {
-        const phase = scatterPhases[i];
-        const baseColor = scatterBaseColors[i];
-        const intensity = 0.55 + Math.sin(time * 2.8 + phase) * 0.45;
-        
-        scatterColorArray[i * 3] = baseColor.r * intensity;
-        scatterColorArray[i * 3 + 1] = baseColor.g * intensity;
-        scatterColorArray[i * 3 + 2] = baseColor.b * intensity;
+      // 1.5. 바닥 픽셀 Twinkling 반짝임 애니메이션 (느린 호흡 템포, 둥둥 유영 제외)
+      // 1.5.1. 일반 원형 파티클 업데이트
+      const sqColArr = squareGeometry.attributes.color.array as Float32Array;
+      for (let i = 0; i < squareCount; i++) {
+        const phase = squarePhases[i];
+        const baseColor = squareBaseColors[i];
+        const intensity = 0.75 + Math.sin(time * 0.4 + phase) * 0.25;
+
+        sqColArr[i * 3] = baseColor.r * intensity;
+        sqColArr[i * 3 + 1] = baseColor.g * intensity;
+        sqColArr[i * 3 + 2] = baseColor.b * intensity;
       }
-      scatterGeometry.attributes.color.needsUpdate = true;
+      squareGeometry.attributes.color.needsUpdate = true;
+
+      // 1.5.2. 프랙탈 파티클 업데이트
+      const frColArr = fractalGeometry.attributes.color.array as Float32Array;
+      for (let i = 0; i < fractalCount; i++) {
+        const phase = fractalPhases[i];
+        const baseColor = fractalBaseColors[i];
+        const intensity = 0.75 + Math.sin(time * 0.4 + phase) * 0.25;
+
+        frColArr[i * 3] = baseColor.r * intensity;
+        frColArr[i * 3 + 1] = baseColor.g * intensity;
+        frColArr[i * 3 + 2] = baseColor.b * intensity;
+      }
+      fractalGeometry.attributes.color.needsUpdate = true;
 
       // 2. 파티클 유영 및 회전
       particles.rotation.y = time * 0.008;
@@ -671,7 +761,7 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
           tempV.project(camera);
           const px = (tempV.x * 0.5 + 0.5) * rect.width;
           const py = (-(tempV.y * 0.5) + 0.5) * rect.height;
-          
+
           popoverRef.current.style.left = `${px}px`;
           popoverRef.current.style.top = `${py - 42}px`;
         }
@@ -689,7 +779,7 @@ const FocusWorld = forwardRef<FocusWorldRef, FocusWorldProps>(({ progress, words
 
     resize();
     animate();
-    
+
     renderer.domElement.addEventListener('pointerdown', onPointerDown);
     renderer.domElement.addEventListener('pointerup', onPointerUp);
     window.addEventListener('resize', resize);

@@ -1957,3 +1957,38 @@ h1 {
   text-transform: lowercase;
   color: #9c9b96;
 }
+
+/* Custom Cursor styles */
+html, body, button, a, [role="button"], input, select, textarea {
+  cursor: none !important;
+}
+
+.custom-star-cursor {
+  mix-blend-mode: difference;
+}
+
+.custom-star-cursor path {
+  stroke: #ffffff; /* difference mix-blend-mode will make this look dark on light background, light on dark background */
+  fill: none;
+  transition: stroke 0.2s, fill 0.2s;
+}
+
+.custom-star-cursor.is-hovered {
+  width: 42px !important;
+  height: 42px !important;
+  margin-left: -21px !important;
+  margin-top: -21px !important;
+}
+
+.custom-star-cursor.is-hovered svg {
+  transform: rotate(30deg);
+}
+
+.custom-star-cursor.is-hovered path {
+  fill: rgba(255, 255, 255, 0.25);
+}
+
+.custom-star-cursor.is-clicking svg {
+  transform: scale(0.8) rotate(45deg);
+}
+

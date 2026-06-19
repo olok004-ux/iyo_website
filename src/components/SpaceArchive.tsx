@@ -200,9 +200,9 @@ ${editContent || 'No content written.'}
           {items.map((item) => {
             const dateStr = formatArchiveDate(item.createdAt);
             const isScreenshot = !!item.screenshot;
-            const displayTitle = isScreenshot ? `field trace ${dateStr}` : `signal pattern ${dateStr}`;
+            const displayTitle = item.journalTitle || (isScreenshot ? `field trace ${dateStr}` : `signal pattern ${dateStr}`);
             const displayType = isScreenshot ? 'visual trace' : 'data pattern';
-            const tags = isScreenshot ? ['visual', 'trace'] : ['data', 'pattern'];
+            const tags = item.words && item.words.length > 0 ? item.words : (isScreenshot ? ['visual', 'trace'] : ['data', 'pattern']);
 
             return (
               <article

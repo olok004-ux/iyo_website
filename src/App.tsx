@@ -3,6 +3,7 @@ import DigitalTree from './components/DigitalTree';
 import FocusFlow from './components/FocusFlow';
 import SpaceArchive from './components/SpaceArchive';
 import { navItems } from './data';
+import CustomCursor from './components/CustomCursor';
 
 type View = 'system' | 'focus' | 'space';
 
@@ -123,52 +124,61 @@ function App() {
 
   if (view === 'system') {
     return (
-      <main className="home-shell">
-        <a className="home-brand" href="#" aria-label="Meditation system">
-          meditation.system/<br />
-          analog-stillness/
-        </a>
-        {nav}
-        <DigitalTree />
-      </main>
+      <>
+        <CustomCursor />
+        <main className="home-shell">
+          <a className="home-brand" href="#" aria-label="Meditation system">
+            meditation.system/<br />
+            analog-stillness/
+          </a>
+          {nav}
+          <DigitalTree />
+        </main>
+      </>
     );
   }
 
   if (view === 'focus') {
     return (
-      <main className="focus-shell">
-        {nav}
-        <aside className="focus-side">
-          <a href="#" className="sidebar-brand-link" aria-label="Focus archive">
-            focus.archive/<br />
-            ritual list
-          </a>
-          <button type="button" className="focus-sound" onClick={() => setSoundOpen(true)}>
-            <span>sound</span>
-            <span className="sound-slider-icon">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
-              </svg>
-            </span>
-          </button>
-          <div className="focus-side-footer">
-            <span className="copyright-text">© 2026</span>
-            <span className="footer-circle-icon"></span>
-          </div>
-        </aside>
-        <FocusFlow cameraOn={cameraOn} onSendToSpace={() => setView('space')} />
-        {soundSheet}
-      </main>
+      <>
+        <CustomCursor />
+        <main className="focus-shell">
+          {nav}
+          <aside className="focus-side">
+            <a href="#" className="sidebar-brand-link" aria-label="Focus archive">
+              focus.archive/<br />
+              ritual list
+            </a>
+            <button type="button" className="focus-sound" onClick={() => setSoundOpen(true)}>
+              <span>sound</span>
+              <span className="sound-slider-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="4" y1="12" x2="20" y2="12" />
+                  <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+                </svg>
+              </span>
+            </button>
+            <div className="focus-side-footer">
+              <span className="copyright-text">© 2026</span>
+              <span className="footer-circle-icon"></span>
+            </div>
+          </aside>
+          <FocusFlow cameraOn={cameraOn} onSendToSpace={() => setView('space')} />
+          {soundSheet}
+        </main>
+      </>
     );
   }
 
   return (
-    <main className="space-shell">
-      {nav}
-      <SpaceArchive />
-      {soundSheet}
-    </main>
+    <>
+      <CustomCursor />
+      <main className="space-shell">
+        {nav}
+        <SpaceArchive />
+        {soundSheet}
+      </main>
+    </>
   );
 }
 
